@@ -5,11 +5,12 @@ class Oystercard
 
   def initialize(balance = DEFAULT_BALANCE)
     @balance = balance
-    @status = "tapped out"
+    @status = :TAPPED_OUT
   end
 
   def top_up(amount)
     raise "Exceeds maximum card limit of #{MAX_LIMIT}" if exceeds_limit?(amount)
+
     @balance += amount
   end
 
@@ -18,7 +19,13 @@ class Oystercard
   end
 
   def in_journey?
-    @status == "tapped in"
+    @status == :TAPPED_IN
+  end
+
+  def tap_in
+    raise 'Card is already tapped in' if in_journey?
+
+    @status = :TAPPED_IN
   end
 
   private

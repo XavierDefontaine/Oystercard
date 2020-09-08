@@ -7,7 +7,7 @@ describe Oystercard do
   let(:fare) { 20 }
   
   it 'sets status to tapped out by default' do
-    expect(card.status).to eq("tapped out")
+    expect(card.status).to eq(:TAPPED_OUT)
   end
 
   it 'sets a balance in the card with default value of 0' do
@@ -33,6 +33,11 @@ describe Oystercard do
       card.top_up(Oystercard::MAX_LIMIT) # set up test card with a full balance
       expect{ card.top_up(1) }.to raise_error("Exceeds maximum card limit of #{Oystercard::MAX_LIMIT}")
     end
+
+    it "doesn't increase balance if top up would put balance over the maximum limit" do
+      amount = Oystercard::MAX_LIMIT * 2
+      expect{ card.top_up(amount) rescue nil }.not_to change{ card.balance }
+    end
   end
 
   describe '#deduct(fare)' do
@@ -50,6 +55,24 @@ describe Oystercard do
       expect(card.in_journey?).to eq false
     end
   end
-  
+
+  describe '#tap_in' do
+    context 'when card status is :TAPPED_OUT' do
+      it 'updates the card status to :TAPPED_IN' do
+        card.tap_in
+        expect(card.status).to eq(:TAPPED_IN)
+      end
+    end
+
+    context 'when card status is :TAPPED_IN' do
+      before do
+        card.tap_in # set the card status to :TAPPED_IN
+      end
+        it "raises an error that the card is already tapped in" do
+          expect{ card.tap_in }.to raise_error('Card is already tapped in')
+        end
+    end
+
+  end
 
 end
