@@ -5,6 +5,10 @@ describe Oystercard do
   subject(:card) { Oystercard.new }
   let(:amount) { 20 }
   let(:fare) { 20 }
+  
+  it 'sets status to tapped out by default' do
+    expect(card.status).to eq("tapped out")
+  end
 
   it 'sets a balance in the card with default value of 0' do
     expect(card.balance).to eq(0)
@@ -33,8 +37,21 @@ describe Oystercard do
 
   describe '#deduct(fare)' do
     it 'deducts fare from the balance' do
-        expect{ card.deduct(fare) }.to change{card.balance}.from(card.balance).to(card.balance - fare)
+      expect{ card.deduct(fare) }.to change{card.balance}.from(card.balance).to(card.balance - fare)
     end
+  end
+
+  describe '#in_journey?' do 
+    
+  
+    it 'returnd true if the card owner is in journey' do
+        
+    end
+
+    it 'returns false if the card is not in journey' do
+      
+    end
+
 
   end
   

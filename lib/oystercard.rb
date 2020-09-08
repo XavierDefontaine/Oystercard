@@ -1,10 +1,11 @@
 class Oystercard
-  attr_reader :balance
+  attr_reader :balance, :status
   DEFAULT_BALANCE = 0
   MAX_LIMIT = 90
 
   def initialize(balance = DEFAULT_BALANCE)
     @balance = balance
+    @status = "tapped out"
   end
 
   def top_up(amount)
