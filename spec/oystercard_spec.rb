@@ -41,18 +41,14 @@ describe Oystercard do
     end
   end
 
-  describe '#in_journey?' do 
-    
-  
-    it 'returnd true if the card owner is in journey' do
-        
+  describe '#in_journey?' do
+    it 'returns true if the card status is tapped in' do
+
     end
 
-    it 'returns false if the card is not in journey' do
-      
+    it 'returns false if the card status is tapped out' do
+      expect(card.in_journey?).to eq false
     end
-
-
   end
   
 

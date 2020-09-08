@@ -17,6 +17,10 @@ class Oystercard
     @balance -= fare
   end
 
+  def in_journey?
+    @status == "tapped in"
+  end
+
   private
 
   def exceeds_limit?(amount)
