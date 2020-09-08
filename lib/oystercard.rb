@@ -28,6 +28,12 @@ class Oystercard
     @status = :TAPPED_IN
   end
 
+  def tap_out
+    raise 'Card is already tapped out' unless in_journey?
+
+    @status = :TAPPED_OUT
+  end
+
   private
 
   def exceeds_limit?(amount)

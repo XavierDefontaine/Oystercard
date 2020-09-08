@@ -68,11 +68,26 @@ describe Oystercard do
       before do
         card.tap_in # set the card status to :TAPPED_IN
       end
-        it "raises an error that the card is already tapped in" do
-          expect{ card.tap_in }.to raise_error('Card is already tapped in')
-        end
+      it 'raises an error that the card is already tapped in' do
+        expect{ card.tap_in }.to raise_error('Card is already tapped in')
+      end
+    end
+  end
+
+  describe '#tap_out' do
+    context 'when card status is :TAPPED_IN' do
+      it 'updates the card status to :TAPPED_OUT' do
+        card.tap_in # set up the context
+        card.tap_out
+        expect(card.status).to eq(:TAPPED_OUT)
+      end
     end
 
+    context 'when card status is :TAPPED_OUT' do
+      it 'raises an error that the card is already tapped out' do
+        expect{ card.tap_out }.to raise_error('Card is already tapped out')
+      end
+    end
   end
 
 end
