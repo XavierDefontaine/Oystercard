@@ -26,7 +26,7 @@ describe Journey do
 
     it 'returns the journey' do
       journey.start(entry_station)
-      expect(journey.end(exit_station)).to eq journey
+      expect(journey.end(exit_station)).to eq ({ entry_station: entry_station, exit_station: exit_station })
     end
   end
 
@@ -35,6 +35,11 @@ describe Journey do
   describe '#in_journey?' do
     it 'returns false if entry_station is nil' do
       expect(journey.in_journey?).to eq false
+    end
+
+    it 'returns true if entry_station is not nil' do
+      journey.start(entry_station)
+      expect(journey.in_journey?).to eq true
     end
 
     # it 'returns true if entry_station is not nil' do
@@ -53,16 +58,9 @@ end
 #   expect(card.in_journey?).to eq false
 # end
 #
-# it 'updates entry_station to nil' do
-#   card.tap_out
-#   expect(card.entry_station).to eq nil
-# end
+
 #
-# describe '#in_journey?' do
-# it 'returns true if the card status is tapped in' do
-#
-# end
-#
+
 # it 'returns false if the card status is tapped out' do
 #   expect(card.in_journey?).to eq false
 # end

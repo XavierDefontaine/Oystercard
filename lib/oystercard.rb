@@ -1,13 +1,16 @@
+require 'journey'
 class Oystercard
-  attr_reader :balance, :entry_station, :journeys
+  attr_reader :balance, :entry_station, :journeys, :journey
   DEFAULT_BALANCE = 0
   MAX_LIMIT = 90
   MINIMUM_FARE = 1
   
 
-  def initialize(balance = DEFAULT_BALANCE)
+  def initialize(journey_class = Journey, balance = DEFAULT_BALANCE)
     @balance = balance
     @journeys = []
+    @journey = nil
+    @journey_class = journey_class
   end
 
   def top_up(amount)
@@ -21,11 +24,12 @@ class Oystercard
   end
 
   def tap_in(entry_station="not-a-station")
+    @journey = @journey_class.new unless @journey
     raise 'Card is already tapped in' if in_journey?
     raise 'Insufficient Funds' if @balance < MINIMUM_FARE
 
     @entry_station = entry_station
-  end
+  end 
 
   def tap_out(exit_station = 'default')
     raise 'Card is already tapped out' unless in_journey?

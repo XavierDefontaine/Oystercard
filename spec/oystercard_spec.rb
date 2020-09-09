@@ -2,11 +2,13 @@ require 'oystercard'
 
 describe Oystercard do
 
-  subject(:card) { Oystercard.new }
+  subject(:card) { Oystercard.new(journey_class) }
   let(:amount) { 20 }
   let(:fare) { 20 }
   let(:entry_station) {double "entry_station"}
   let(:exit_station) { double "exit_station"}
+  let(:journey) {double "journey"}
+  let(:journey_class) {double("journey_class", :new => journey) }
   
   it 'is not in journey when first created' do
     expect(card.in_journey?).to eq false
@@ -46,29 +48,18 @@ describe Oystercard do
     end
   end
 
-  describe '#in_journey?' do
-    it 'returns true if the card status is tapped in' do
 
-    end
-
-    it 'returns false if the card status is tapped out' do
-      expect(card.in_journey?).to eq false
-    end
-  end
 
   describe '#tap_in' do
     context 'when card status is not in journey and has balance' do
       before {card.instance_variable_set(:@balance, 5)}
 
-      it 'updates the card to be in journey' do
+      it 'it starts a new journey' do
         card.tap_in
-        expect(card.in_journey?).to eq true
+        expect(card.journey).to eq journey
       end
 
-      it "stores an entry station as an instance variable" do
-        card.tap_in(entry_station)
-        expect(card.entry_station).to eq entry_station
-      end
+
 
     end
     context "when card is :TAPPED_OUT with no balance" do 
@@ -98,17 +89,11 @@ describe Oystercard do
         card.instance_variable_set(:@balance, 5)
         card.tap_in(entry_station)
       end
-      it 'updates the card to be not in journey' do
-        card.tap_out
-        expect(card.in_journey?).to eq false
-      end
+
       it "reduces balance by minimum fare on tap out" do
         expect {card.tap_out}.to change{card.balance}.by(-Oystercard::MINIMUM_FARE)
       end
-      it 'updates entry_station to nil' do
-        card.tap_out
-        expect(card.entry_station).to eq nil
-      end
+
       it 'records the journey in the list of journeys' do
         card.tap_out(exit_station)
         expect(card.journeys[0]).to include({entry_station: entry_station, exit_station: exit_station})
