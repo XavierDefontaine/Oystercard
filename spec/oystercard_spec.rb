@@ -7,8 +7,8 @@ describe Oystercard do
   let(:fare) { 20 }
   let(:station) {double "station"}
   
-  it 'sets status to tapped out by default' do
-    expect(card.status).to eq(:TAPPED_OUT)
+  it 'is not in journey when first created' do
+    expect(card.in_journey?).to eq false
   end
 
   it 'sets a balance in the card with default value of 0' do
@@ -52,12 +52,12 @@ describe Oystercard do
   end
 
   describe '#tap_in' do
-    context 'when card status is :TAPPED_OUT with balance' do
+    context 'when card status is not in journey and has balance' do
       before {card.instance_variable_set(:@balance, 5)}
 
-      it 'updates the card status to :TAPPED_IN' do
+      it 'updates the card to be in journey' do
         card.tap_in
-        expect(card.status).to eq(:TAPPED_IN)
+        expect(card.in_journey?).to eq true
       end
 
       it "stores an entry station as an instance variable" do
@@ -93,14 +93,16 @@ describe Oystercard do
         card.instance_variable_set(:@balance, 5)
         card.tap_in
       end
-      it 'updates the card status to :TAPPED_OUT' do
-        
-       
+      it 'updates the card to be not in journey' do
         card.tap_out
-        expect(card.status).to eq(:TAPPED_OUT)
+        expect(card.in_journey?).to eq false
       end
       it "reduces balance by minimum fare on tap out" do
         expect {card.tap_out}.to change{card.balance}.by(-Oystercard::MINIMUM_FARE)
+      end
+      it 'updates entry_station to nil' do
+        card.tap_out
+        expect(card.entry_station).to eq nil
       end
     end
 
