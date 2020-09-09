@@ -5,7 +5,8 @@ describe Oystercard do
   subject(:card) { Oystercard.new }
   let(:amount) { 20 }
   let(:fare) { 20 }
-  let(:station) {double "station"}
+  let(:entry_station) {double "entry_station"}
+  let(:exit_station) { double "exit_station"}
   
   it 'is not in journey when first created' do
     expect(card.in_journey?).to eq false
@@ -13,6 +14,10 @@ describe Oystercard do
 
   it 'sets a balance in the card with default value of 0' do
     expect(card.balance).to eq(0)
+  end
+
+  it 'has a list of journeys which is empty by default' do
+    expect(card.journeys).to eq([])
   end
 
   describe '#top_up(amount)' do
@@ -61,8 +66,8 @@ describe Oystercard do
       end
 
       it "stores an entry station as an instance variable" do
-        card.tap_in(station)
-        expect(card.entry_station).to eq station
+        card.tap_in(entry_station)
+        expect(card.entry_station).to eq entry_station
       end
 
     end
@@ -88,10 +93,10 @@ describe Oystercard do
   end
 
   describe '#tap_out' do
-    context 'when card status is :TAPPED_IN with 5 balance' do
+    context 'when card is in journey with 5 balance' do
       before do
         card.instance_variable_set(:@balance, 5)
-        card.tap_in
+        card.tap_in(entry_station)
       end
       it 'updates the card to be not in journey' do
         card.tap_out
@@ -103,6 +108,13 @@ describe Oystercard do
       it 'updates entry_station to nil' do
         card.tap_out
         expect(card.entry_station).to eq nil
+      end
+      it 'records the journey in the list of journeys' do
+        card.tap_out(exit_station)
+        expect(card.journeys[0]).to include({entry_station: entry_station, exit_station: exit_station})
+      end
+      it 'increases the number of journeys by 1' do
+        expect{ card.tap_out(exit_station) }.to change{ card.journeys.count }.by(1)
       end
     end
 

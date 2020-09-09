@@ -1,12 +1,12 @@
 class Oystercard
-  attr_reader :balance, :entry_station
+  attr_reader :balance, :entry_station, :journeys
   DEFAULT_BALANCE = 0
   MAX_LIMIT = 90
   MINIMUM_FARE = 1
 
   def initialize(balance = DEFAULT_BALANCE)
     @balance = balance
-
+    @journeys = []
   end
 
   def top_up(amount)
@@ -26,10 +26,13 @@ class Oystercard
     @entry_station = entry_station
   end
 
-  def tap_out
+  def tap_out(exit_station = 'default')
     raise 'Card is already tapped out' unless in_journey?
     deduct(MINIMUM_FARE)
-    @entry_station = nil
+
+    @exit_station = exit_station
+    add_journey
+    reset_journey
   end
 
   private
@@ -41,6 +44,14 @@ class Oystercard
   def deduct(fare)
     @balance -= fare
   end
-  
+
+  def add_journey
+    @journeys << { entry_station: @entry_station, exit_station: @exit_station }
+  end
+
+  def reset_journey
+    @entry_station = nil
+    @exit_station = nil
+  end
 
 end
