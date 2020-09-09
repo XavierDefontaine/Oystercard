@@ -7,11 +7,11 @@ describe Oystercard do
   let(:fare) { 20 }
   let(:entry_station) {double "entry_station"}
   let(:exit_station) { double "exit_station"}
-  let(:journey) {double "journey"}
+  let(:journey) {double("journey", start: entry_station, end: {entry_station: entry_station, exit_station: exit_station}) }
   let(:journey_class) {double("journey_class", :new => journey) }
   
-  it 'is not in journey when first created' do
-    expect(card.in_journey?).to eq false
+  it 'sets journey to nil when first created' do
+    expect(card.journey).to eq nil
   end
 
   it 'sets a balance in the card with default value of 0' do
@@ -50,35 +50,36 @@ describe Oystercard do
 
 
 
-  describe '#tap_in' do
+  describe '#tap_in(entry_station)' do
     context 'when card status is not in journey and has balance' do
       before {card.instance_variable_set(:@balance, 5)}
 
       it 'it starts a new journey' do
-        card.tap_in
+        card.tap_in(entry_station)
         expect(card.journey).to eq journey
       end
 
+      it 'sends start message to journey with entry_station' do
+        expect(journey).to receive(:start).with(entry_station)
+        card.tap_in(entry_station)
+      end
 
 
     end
     context "when card is :TAPPED_OUT with no balance" do 
       it 'raises an error when tapping in with balance less than minimum' do
-        expect {card.tap_in}.to raise_error "Insufficient Funds"
+        expect {card.tap_in(entry_station)}.to raise_error "Insufficient Funds"
       end
       it "doesn't raise an error when balance == MINIMUM_FARE" do
         card.top_up(Oystercard::MINIMUM_FARE)
-        expect {card.tap_in}.not_to raise_error 
+        expect {card.tap_in(entry_station)}.not_to raise_error
       end
     end
 
     context 'when card status is :TAPPED_IN' do
       before do
         card.instance_variable_set(:@balance, 5)
-        card.tap_in # set the card status to :TAPPED_IN
-      end
-      it 'raises an error that the card is already tapped in' do
-        expect{ card.tap_in }.to raise_error('Card is already tapped in')
+        card.tap_in(entry_station) # set the card status to :TAPPED_IN
       end
     end
   end
@@ -103,13 +104,8 @@ describe Oystercard do
       end
     end
 
-    context 'when card status is :TAPPED_OUT' do
-      it 'raises an error that the card is already tapped out' do
-        expect{ card.tap_out }.to raise_error('Card is already tapped out')
-      end
-      it 'does not deduct from the balance when "already tapped out raised"' do
-        expect {card.tap_out rescue nil}.not_to change{card.balance}
-      end
+    context 'when card is in journey' do
+
     end
   end
 
