@@ -4,12 +4,11 @@ class Oystercard
   DEFAULT_BALANCE = 0
   MAX_LIMIT = 90
   MINIMUM_FARE = 1
-  
 
   def initialize(journey_class = Journey, balance = DEFAULT_BALANCE)
     @balance = balance
     @journeys = []
-    @journey = nil
+    @journey = journey_class.new
     @journey_class = journey_class
   end
 
@@ -20,7 +19,15 @@ class Oystercard
   end
 
   def tap_in(entry_station)
-    @journey = @journey_class.new unless @journey
+    if @journey.in_journey?
+      journey_record = @journey.end
+      add_journey(journey_record)
+      # @journey.fare
+
+      # create new journey object for next trip
+      @journey = @journey_class.new
+    end
+
     raise 'Insufficient Funds' if @balance < MINIMUM_FARE
 
     @journey.start(entry_station)

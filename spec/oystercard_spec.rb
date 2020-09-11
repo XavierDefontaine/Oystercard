@@ -7,11 +7,15 @@ describe Oystercard do
   let(:fare) { 20 }
   let(:entry_station) {double "entry_station"}
   let(:exit_station) { double "exit_station"}
-  let(:journey) {double("journey", start: entry_station, end: {entry_station: entry_station, exit_station: exit_station}) }
-  let(:journey_class) {double("journey_class", :new => journey) }
-  
+  let(:journey) {double("journey", start: entry_station, end: {entry_station: entry_station, exit_station: exit_station }, in_journey?: false ) }
+  let(:journey_class) {double("journey_class", new: journey) }
+
+  let(:incomplete_journey_class) { double("incomplete_journey_class", new: incomplete_journey) }
+  let(:incomplete_journey) {double("journey", start: entry_station, end: {entry_station: entry_station, exit_station: nil}, in_journey?: true ) }
+
+
   it 'sets journey to nil when first created' do
-    expect(card.journey).to eq nil
+    expect(card.journey).to eq(journey)
   end
 
   it 'sets a balance in the card with default value of 0' do
@@ -66,7 +70,7 @@ describe Oystercard do
 
 
     end
-    context "when card is :TAPPED_OUT with no balance" do 
+    context "when card is not in journey with no balance" do
       it 'raises an error when tapping in with balance less than minimum' do
         expect {card.tap_in(entry_station)}.to raise_error "Insufficient Funds"
       end
@@ -76,10 +80,20 @@ describe Oystercard do
       end
     end
 
-    context 'when card status is :TAPPED_IN' do
+    context 'when card is already in journey and has 20 balance' do
       before do
-        card.instance_variable_set(:@balance, 5)
-        card.tap_in(entry_station) # set the card status to :TAPPED_IN
+        # card = Oystercard.new(incomplete_journey_class)
+        # card.instance_variable_set(:@balance, 20)
+        # card.tap_in(entry_station) # set the card status to :TAPPED_IN
+      end
+
+      it 'call journey.end to end the current journey with no exit station' do
+        card = Oystercard.new(incomplete_journey_class)
+        card.instance_variable_set(:@balance, 20)
+        card.tap_in(entry_station)
+
+        expect(card.journey).to receive(:end).with(no_args)
+        card.tap_in(entry_station)
       end
     end
   end
