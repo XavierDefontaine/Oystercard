@@ -31,7 +31,6 @@ describe Journey do
   end
 
 
-
   describe '#in_journey?' do
     it 'returns false if entry_station is nil' do
       expect(journey.in_journey?).to eq false
@@ -42,13 +41,21 @@ describe Journey do
       expect(journey.in_journey?).to eq true
     end
 
-    # it 'returns true if entry_station is not nil' do
-    #
-    #   expect(journey.in_journey?).to eq true
-    # end
-
   end
 
+  describe "#fare" do
+    it "return the minimum fare if journey there is both entry and exit station" do
+      journey.start(entry_station)
+      journey.end(exit_station)
+      expect(journey.fare).to eq Journey::MINIMUM_FARE
+    end
+
+    it "return the maximum fare if journey there is an entry OR exit station missing" do
+      journey.start(entry_station)
+      journey.end
+      expect(journey.fare).to eq Journey::PENALTY_FARE
+    end
+  end
 end
 
 # ##################

@@ -22,14 +22,13 @@ class Oystercard
     if @journey.in_journey?
       journey_record = @journey.end
       add_journey(journey_record)
-      # @journey.fare
+      deduct(@journey.fare)
 
       # create new journey object for next trip
       @journey = @journey_class.new
     end
 
     raise 'Insufficient Funds' if @balance < MINIMUM_FARE
-
     @journey.start(entry_station)
   end 
 

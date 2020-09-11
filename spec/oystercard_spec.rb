@@ -7,11 +7,11 @@ describe Oystercard do
   let(:fare) { 20 }
   let(:entry_station) {double "entry_station"}
   let(:exit_station) { double "exit_station"}
-  let(:journey) {double("journey", start: entry_station, end: {entry_station: entry_station, exit_station: exit_station }, in_journey?: false ) }
+  let(:journey) {double("journey", start: entry_station, end: {entry_station: entry_station, exit_station: exit_station }, in_journey?: false, fare: 1 ) }
   let(:journey_class) {double("journey_class", new: journey) }
 
   let(:incomplete_journey_class) { double("incomplete_journey_class", new: incomplete_journey) }
-  let(:incomplete_journey) {double("journey", start: entry_station, end: {entry_station: entry_station, exit_station: nil}, in_journey?: true ) }
+  let(:incomplete_journey) {double("journey", start: entry_station, end: {entry_station: entry_station, exit_station: nil}, in_journey?: true, fare: 6) }
 
 
   it 'sets journey to nil when first created' do
@@ -94,6 +94,13 @@ describe Oystercard do
 
         expect(card.journey).to receive(:end).with(no_args)
         card.tap_in(entry_station)
+      end
+
+      it "deduct maximum fare from the balance " do
+        card = Oystercard.new(incomplete_journey_class)
+        card.instance_variable_set(:@balance, 20)
+        card.tap_in(entry_station)
+        expect{card.tap_in(entry_station)}.to change{card.balance}.by(-Journey::PENALTY_FARE)
       end
     end
   end
